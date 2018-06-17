@@ -1,0 +1,126 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+   http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+
+
+	<bean id="loginDelegate" class="com.supraits.delegate.LoginDelegate">
+		<property name="userService" ref="userService"></property>
+	</bean>
+
+	<bean id="userService" class="com.supraits.service.impl.UserServiceImpl">
+		<property name="userDao" ref="userDao"></property>
+	</bean>
+
+	<bean name="userDao" class="com.supraits.dao.impl.UserDaoImpl">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<bean id="multipartResolver"
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="100000000" />
+    </bean>
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		 
+		<property name="url" value="jdbc:mysql://103.240.91.2:3306/rolemanagement" />
+		<property name="username" value="roleman" />
+		<property name="password" value="Welcome1" />
+		  
+		<!-- <property name="url" value="jdbc:mysql://103.240.91.77:3306/supratmsdb" />
+		<property name="username" value="root" />
+		<property name="password" value="Q!jnj!@90dmm" /> -->
+		 
+		<!-- <property name="url" value="jdbc:mysql://103.240.91.2:3306/rolemanagement" />
+		<property name="username" value="roleman" />
+		<property name="password" value="Welcome1" /> -->
+		
+		
+	</bean>
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    	<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<bean id="namedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+    	<!-- <property name="dataSource" ref="dataSource"/> -->
+    	<constructor-arg ref="dataSource"/>
+	</bean>
+	
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="sv26consultant@gmail.com" />
+		<property name="password" value="sigmas123" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+		<!-- <property name="host" value="timesheetdemo.midihost.com" />
+		<property name="port" value="25" />
+		<property name="username" value="info@timesheetdemo.midihost.com" />
+		<property name="password" value="yTkc74*3*aa" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">false</prop>
+			</props>
+		</property> -->
+	</bean>
+	
+	
+	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+       <property name="resourceLoaderPath" value="/WEB-INF/mailTemplate/" ></property>
+   </bean>
+	<bean id="runMeTask" class="com.supraits.controller.TSReminderScheduler" />
+
+	<!-- Spring Quartz -->
+	<bean name="runMeJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="com.supraits.controller.RunMeJob" />
+		<property name="jobDataAsMap">
+		  <map>
+			<entry key="runMeTask" value-ref="runMeTask" />
+		  </map>
+		</property>
+	</bean>
+
+	<!-- Simple Trigger, run every 5 seconds -->
+	<bean id="simpleTrigger"
+                class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+
+		<property name="jobDetail" ref="runMeJob" />
+		<property name="repeatInterval" value="60000" />
+		<property name="startDelay" value="30000" />
+
+	</bean>
+
+	<!-- Cron Trigger, run every 5 seconds -->
+	<bean id="cronTrigger"
+                class="org.springframework.scheduling.quartz.CronTriggerBean">
+
+		<property name="jobDetail" ref="runMeJob" />
+		<property name="cronExpression" value="0 0 12 * * ?" />
+	</bean>
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list>
+				<ref bean="runMeJob" />
+			</list>
+		</property>
+
+		<property name="triggers">
+			<list>
+				 <ref bean="cronTrigger" /> 
+			 	 <!-- <ref bean="simpleTrigger" /> -->
+			</list>
+		</property>
+	</bean>
+</beans>

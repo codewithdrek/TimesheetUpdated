@@ -1,0 +1,40 @@
+<html>
+  <body>
+  <p>Request Number:<strong>${leaveReqNumber}</strong></p>
+  <p>${message}</p>
+  <p><strong>Leave Summary</strong></p>
+  <div>
+  <table class='table table-stripped' style='background-color: #EBF5FB;'>
+                        <thead style='background-color: #D4E6F1;'><tr><th>Leave Head</th><th>Start Date</th><th>End Date</th><th>Days</th><th>Full/Half Day</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                        	#foreach( $key in $leaveList.keySet() )
+							<tr>
+							<td>$leaveList.get($key).leavehead</td>
+							<td>$leaveList.get($key).startdate</td>
+							<td>$leaveList.get($key).enddate</td>
+							<td>$leaveList.get($key).days</td>
+							<td>$leaveList.get($key).fulldayflag</td>
+							<td>$leaveList.get($key).purpose</td>
+							</tr>
+							#end
+                        </tbody>
+                   </table>
+       </div>
+       <br><br>            
+       <div class="footer">
+              <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-bottom: 10px;padding-top: 10px;">
+                    <span class="apple-link">SUPRA INDIA TECH PVT. LTD., Noida, Uttar Pradesh-201305, India</span>
+                    <br> Website: <a href="http://www.supraits.com/">Supra ITS</a>.
+                  </td>
+                </tr>
+                <tr>
+                  <td class="content-block powered-by">
+                    Powered by <a href="#!">eManager</a>.
+                  </td>
+                </tr>
+              </table>
+        </div>               
+  </body>
+</html>
